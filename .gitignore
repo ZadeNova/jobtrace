@@ -1,0 +1,32 @@
+# Binaries
+jobtrace
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of go coverage tool
+*.out
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Env files — never commit secrets/connection strings
+.env
+.env.local
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS cruft
+.DS_Store
+
+# Docker volumes if you ever mount local data dirs
+/pgdata
