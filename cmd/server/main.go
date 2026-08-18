@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/ZadeNova/jobtrace/internal/config"
+	jobtracedb "github.com/ZadeNova/jobtrace/internal/db"
 	_ "github.com/lib/pq"
 )
 
@@ -61,6 +62,10 @@ func main() {
 	}
 	defer db.Close()
 
+	err = jobtracedb.RunMigrations(db)
+	if err != nil {
+		log.Fatalf("failed to run migration: %v", err)
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", healthzHandler)

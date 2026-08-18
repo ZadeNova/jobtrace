@@ -1,0 +1,1 @@
+DROP INDEX application_events_unique_round;
