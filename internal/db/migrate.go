@@ -9,8 +9,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-
-
 func RunMigrations(db *sql.DB) error {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
@@ -28,7 +26,6 @@ func RunMigrations(db *sql.DB) error {
 	if err != nil && err != migrate.ErrNoChange {
 		return fmt.Errorf("running migrations: %w", err)
 	}
-	
 
 	return nil
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/ZadeNova/jobtrace/internal/config"
 	jobtracedb "github.com/ZadeNova/jobtrace/internal/db"
+	"github.com/ZadeNova/jobtrace/internal/handler"
 	_ "github.com/lib/pq"
 )
 
@@ -26,7 +27,7 @@ func readyzHandler(db *sql.DB) http.HandlerFunc {
 		defer cancel()
 
 		err := db.PingContext(ctx)
-		
+
 		if err != nil {
 			log.Printf("readyz: db ping failed %v", err)
 			w.WriteHeader(http.StatusServiceUnavailable)
@@ -71,10 +72,20 @@ func main() {
 	mux.HandleFunc("GET /healthz", healthzHandler)
 	mux.HandleFunc("GET /readyz", readyzHandler(db))
 
+	// CRUD handlers for Job Application
+	mux.HandleFunc("POST /job-applications", handler.CreateJobApplicationHandler(db))
+	mux.HandleFunc("GET /job-applications", handler.ListJobApplicationsHandler(db))
+	mux.HandleFunc("GET /job-applications/{id}", handler.GetJobApplicationHandler(db))
+	mux.HandleFunc("PATCH /job-applications/{id}", handler.UpdateJobApplicationHandler(db))
+	mux.HandleFunc("DELETE /job-applications/{id}", handler.DeleteJobApplicationHandler(db))
+
+	// Handlers for Applications events
+	mux.HandleFunc("POST /job-applications/{id}/events", handler.CreateApplicationEventHandler(db))
+	mux.HandleFunc("DELETE /job-applications/{id}/events/{event_id}", handler.DeleteApplicationEventHandler(db))
+
 	log.Println("Starting server on :8080")
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 
 }
-
