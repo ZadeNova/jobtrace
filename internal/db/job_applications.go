@@ -28,8 +28,6 @@ type JobApplicationSummary struct {
 	StatusUpdatedAt *time.Time
 }
 
-
-
 type JobApplicationDetail struct {
 	JobApplicationSummary
 	Events []ApplicationEvent
