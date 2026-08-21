@@ -63,7 +63,7 @@ func main() {
 	}
 	defer db.Close()
 
-	err = jobtracedb.RunMigrations(db)
+	err = jobtracedb.RunMigrations(db, "migrations")
 	if err != nil {
 		log.Fatalf("failed to run migration: %v", err)
 	}

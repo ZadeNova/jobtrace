@@ -9,24 +9,21 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func RunMigrations(db *sql.DB) error {
+func RunMigrations(db *sql.DB, migrationsPath string) error {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		return fmt.Errorf("creating migrate driver: %w", err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", "postgres", driver)
-
+	m, err := migrate.NewWithDatabaseInstance("file://"+migrationsPath, "postgres", driver)
 	if err != nil {
 		return fmt.Errorf("creating migrator: %w", err)
 	}
 
 	err = m.Up()
-
 	if err != nil && err != migrate.ErrNoChange {
 		return fmt.Errorf("running migrations: %w", err)
 	}
 
 	return nil
-
 }

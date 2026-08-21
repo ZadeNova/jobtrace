@@ -8,29 +8,29 @@ import (
 
 // Use pointers when it is optional
 type JobApplication struct {
-	ID        int64
-	Company   string
-	RoleTitle string
-	AppliedAt time.Time
-	Notes     *string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        int64     `json:"id"`
+	Company   string    `json:"company"`
+	RoleTitle string    `json:"role_title"`
+	AppliedAt time.Time `json:"applied_at"`
+	Notes     *string   `json:"notes"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type JobApplicationSummary struct {
-	ID              int64
-	Company         string
-	RoleTitle       string
-	AppliedAt       time.Time
-	Notes           *string
-	CurrentStatus   *string
-	CurrentRound    *int
-	StatusUpdatedAt *time.Time
+	ID              int64      `json:"id"`
+	Company         string     `json:"company"`
+	RoleTitle       string     `json:"role_title"`
+	AppliedAt       time.Time  `json:"applied_at"`
+	Notes           *string    `json:"notes"`
+	CurrentStatus   *string    `json:"current_status"`
+	CurrentRound    *int       `json:"current_round"`
+	StatusUpdatedAt *time.Time `json:"status_updated_at"`
 }
 
 type JobApplicationDetail struct {
 	JobApplicationSummary
-	Events []ApplicationEvent
+	Events []ApplicationEvent `json:"events"`
 }
 
 func CreateJobApplication(db *sql.DB, company, roleTitle string, notes *string) (JobApplication, error) {

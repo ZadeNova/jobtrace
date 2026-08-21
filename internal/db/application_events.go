@@ -7,12 +7,12 @@ import (
 )
 
 type ApplicationEvent struct {
-	ID               int64
-	JobApplicationID int64
-	Status           string
-	RoundNumber      *int
-	OccurredAt       time.Time
-	Notes            *string
+	ID               int64     `json:"id"`
+	JobApplicationID int64     `json:"job_application_id"`
+	Status           string    `json:"status"`
+	RoundNumber      *int      `json:"round_number"`
+	OccurredAt       time.Time `json:"occurred_at"`
+	Notes            *string   `json:"notes"`
 }
 
 func CreateApplicationEvent(db *sql.DB, jobApplicationID int64, status string, notes *string) (ApplicationEvent, error) {
