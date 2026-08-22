@@ -13,6 +13,7 @@ import (
 	"github.com/ZadeNova/jobtrace/internal/config"
 	jobtracedb "github.com/ZadeNova/jobtrace/internal/db"
 	"github.com/ZadeNova/jobtrace/internal/handler"
+	"github.com/ZadeNova/jobtrace/internal/middleware"
 	_ "github.com/lib/pq"
 )
 
@@ -83,8 +84,10 @@ func main() {
 	mux.HandleFunc("POST /job-applications/{id}/events", handler.CreateApplicationEventHandler(db))
 	mux.HandleFunc("DELETE /job-applications/{id}/events/{event_id}", handler.DeleteApplicationEventHandler(db))
 
+	handlerChain := middleware.RequestID(middleware.Logging(mux))
+
 	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", handlerChain); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 
