@@ -21,3 +21,16 @@ func GetFunnelSummaryHandler(db *sql.DB) http.HandlerFunc {
 		writeJSON(w, http.StatusOK, summary)
 	}
 }
+
+func GetApplicationFlowHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		edges, err := jobtracedb.GetApplicationFlow(db)
+		if err != nil {
+			log.Printf("get_application_flow_handler failed: %v", err)
+			writeError(w, http.StatusInternalServerError, "failed to get application flow")
+			return
+		}
+
+		writeJSON(w, http.StatusOK, edges)
+	}
+}

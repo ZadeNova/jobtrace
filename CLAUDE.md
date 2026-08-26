@@ -35,6 +35,25 @@ a workaround silently.
   synthetic load generator for realistic dashboard traffic. This milestone is the project's
   main differentiator — treat it as the highest-priority piece to get right.
 
+## Frontend
+
+Scoped in `frontend-brief.md` (repo root) — read it in full before touching frontend code.
+
+- Plain HTML + CSS + vanilla JS. No React/Vue/JSX, no Node, no npm, no build step of any kind.
+- Alpine.js (CDN `<script>`) for reactive state (list/detail/form views). Plotly.js (CDN
+  `<script>`) for charts, including a Sankey view of application stages.
+- Static files served from `web/static/` by the same Go binary/port as the API
+  (`http.FileServer`, mounted at `/`) — same origin as the API, so no CORS config needed.
+- All data access goes through the existing JSON API via `fetch()` — no new endpoints
+  invented client-side without checking `internal/handler/` for the real route/shape first.
+
+**Process note:** the "How to work with me" rules below (hints-before-solutions, Socratic
+back-and-forth, teaching the underlying concept) are calibrated for backend work, where I'm
+actively trying to learn. For frontend work specifically, implement directly per the brief's
+functional/design requirements instead — I'm not trying to learn frontend deeply here. Still
+flag anything genuinely consequential (e.g. an API shape that doesn't support something the
+frontend needs) rather than deciding it or working around it silently.
+
 ## Repo layout
 
 - `cmd/server/` — entrypoint only (`main.go`): wires dependencies, starts the server. No
@@ -43,6 +62,8 @@ a workaround silently.
 - `internal/db/` — data layer: connections, queries, returns Go structs. No HTTP concerns.
 - `internal/middleware/` — cross-cutting request logic (request-ID, logging, later OTel).
 - `internal/config/` — loads env vars/settings into a typed struct once at startup.
+- `web/static/` — frontend static assets (HTML/CSS/JS), served directly by `http.FileServer`.
+  No build step, no Node — see `frontend-brief.md`.
   Keep layers separated: `handler` doesn't touch SQL, `db` doesn't touch `http.ResponseWriter`.
 
 ## How to work with me

@@ -86,6 +86,7 @@ func main() {
 
 	// Handlers for Aggregation/Stats
 	mux.HandleFunc("GET /stats/summary", handler.GetFunnelSummaryHandler(db))
+	mux.HandleFunc("GET /stats/flow", handler.GetApplicationFlowHandler(db))
 
 	handlerChain := middleware.RequestID(middleware.Logging(mux))
 

@@ -14,6 +14,12 @@ type FunnelSummary struct {
 	OfferRateOfInterviews float64 `json:"offer_rate_of_interviews"`
 }
 
+type FlowEdge struct {
+	From  string `json:"from"`
+	To    string `json:"to"`
+	Count int    `json:"count"`
+}
+
 func GetFunnelSummary(db *sql.DB) (FunnelSummary, error) {
 	var s FunnelSummary
 
@@ -37,4 +43,47 @@ func GetFunnelSummary(db *sql.DB) (FunnelSummary, error) {
 	}
 
 	return s, nil
+}
+
+func GetApplicationFlow(db *sql.DB) ([]FlowEdge, error) {
+	rows, err := db.Query(`
+		WITH labeled_events AS (
+			SELECT
+				job_application_id,
+				occurred_at,
+				CASE
+					WHEN status = 'interviewing' THEN 'interviewing_round_' || round_number
+					ELSE status
+				END AS stage
+			FROM application_events
+		)
+		SELECT from_stage, to_stage, COUNT(*) AS count
+		FROM (
+			SELECT
+				LAG(stage) OVER (PARTITION BY job_application_id ORDER BY occurred_at) AS from_stage,
+				stage AS to_stage
+			FROM labeled_events
+		) transitions
+		WHERE from_stage IS NOT NULL
+		GROUP BY from_stage, to_stage
+		ORDER BY count DESC
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("querying application flow: %w", err)
+	}
+	defer rows.Close()
+
+	edges := []FlowEdge{}
+	for rows.Next() {
+		var e FlowEdge
+		if err := rows.Scan(&e.From, &e.To, &e.Count); err != nil {
+			return nil, fmt.Errorf("scanning flow edge: %w", err)
+		}
+		edges = append(edges, e)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterating flow edges: %w", err)
+	}
+
+	return edges, nil
 }
