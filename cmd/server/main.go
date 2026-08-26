@@ -84,6 +84,9 @@ func main() {
 	mux.HandleFunc("POST /job-applications/{id}/events", handler.CreateApplicationEventHandler(db))
 	mux.HandleFunc("DELETE /job-applications/{id}/events/{event_id}", handler.DeleteApplicationEventHandler(db))
 
+	// Handlers for Aggregation/Stats
+	mux.HandleFunc("GET /stats/summary", handler.GetFunnelSummaryHandler(db))
+
 	handlerChain := middleware.RequestID(middleware.Logging(mux))
 
 	log.Println("Starting server on :8080")

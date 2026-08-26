@@ -33,6 +33,14 @@ type JobApplicationDetail struct {
 	Events []ApplicationEvent `json:"events"`
 }
 
+type JobApplicationFilter struct {
+	Status        *string
+	Company       *string
+	RoleTitle     *string
+	AppliedAfter  *time.Time
+	AppliedBefore *time.Time
+}
+
 func CreateJobApplication(db *sql.DB, company, roleTitle string, notes *string) (JobApplication, error) {
 
 	tx, err := db.Begin()
@@ -69,12 +77,40 @@ func CreateJobApplication(db *sql.DB, company, roleTitle string, notes *string) 
 
 }
 
-func ListJobApplications(db *sql.DB) ([]JobApplicationSummary, error) {
-	rows, err := db.Query(
-		`SELECT id, company, role_title, applied_at, notes, current_status, current_round, status_updated_at
-		 FROM job_application_summary
-		 ORDER BY applied_at DESC`,
-	)
+func ListJobApplications(db *sql.DB, filter JobApplicationFilter) ([]JobApplicationSummary, error) {
+
+	query := `SELECT id, company, role_title, applied_at, notes, current_status, current_round, status_updated_at FROM job_application_summary WHERE 1=1`
+
+	var args []any
+
+	if filter.Status != nil {
+		args = append(args, *filter.Status)
+		query += fmt.Sprintf(" AND current_status = $%d", len(args))
+	}
+
+	if filter.Company != nil {
+		args = append(args, "%"+*filter.Company+"%")
+		query += fmt.Sprintf(" AND company ILIKE $%d", len(args))
+	}
+
+	if filter.RoleTitle != nil {
+		args = append(args, "%"+*filter.RoleTitle+"%")
+		query += fmt.Sprintf(" AND role_title ILIKE $%d", len(args))
+	}
+
+	if filter.AppliedAfter != nil {
+		args = append(args, *filter.AppliedAfter)
+		query += fmt.Sprintf(" AND applied_at >= $%d", len(args))
+	}
+
+	if filter.AppliedBefore != nil {
+		args = append(args, *filter.AppliedBefore)
+		query += fmt.Sprintf(" AND applied_at <= $%d", len(args))
+	}
+
+	query += " ORDER BY applied_at DESC"
+
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("querying job applications: %w", err)
 	}

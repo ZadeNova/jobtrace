@@ -10,7 +10,8 @@ not feature breadth.
 ## Stack
 
 - Go 1.26, stdlib `net/http` only (no third-party router or framework)
-- PostgreSQL, `database/sql` initially, migrating to sqlc during M1
+- PostgreSQL via `database/sql` — no ORM/query builder. sqlc was considered during M1
+  and deliberately dropped once a DB-backed test suite existed (see `DESIGN_DECISIONS.md`)
 - Docker Compose for local deployment through all milestones
 - Observability: OpenTelemetry (instrumentation) → Prometheus (metrics) + Loki (logs) +
   Grafana Tempo (traces) → Grafana (visualization/correlation)
@@ -26,8 +27,8 @@ a workaround silently.
 ## Milestones
 
 - **M0** (current): stdlib `net/http` server, `/healthz` endpoint, Docker Compose w/ Postgres.
-- **M1**: CRUD via raw `database/sql`, then migrate to sqlc. Structured logging + request-ID
-  middleware, built in from the start (not deferred).
+- **M1**: CRUD via raw `database/sql`. Structured logging + request-ID middleware, built in
+  from the start (not deferred).
 - **M2**: Search/filter/aggregation. This is the designated scope-trim lever — if I'm behind
   schedule, cut here first, not M3.
 - **M3**: Full observability stack (OTel → Prometheus + Loki + Tempo → Grafana) + a lightweight

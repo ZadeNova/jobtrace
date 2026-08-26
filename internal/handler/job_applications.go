@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	jobtracedb "github.com/ZadeNova/jobtrace/internal/db"
 )
@@ -58,7 +59,46 @@ func CreateJobApplicationHandler(db *sql.DB) http.HandlerFunc {
 func ListJobApplicationsHandler(db *sql.DB) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		apps, err := jobtracedb.ListJobApplications(db)
+
+		var filter jobtracedb.JobApplicationFilter
+
+		if status := r.URL.Query().Get("status"); status != "" {
+			if !validStatuses[status] {
+				writeError(w, http.StatusBadRequest, "invalid status")
+				return
+			}
+			filter.Status = &status
+		}
+
+		if company := r.URL.Query().Get("company"); company != "" {
+			filter.Company = &company
+		}
+
+		if roleTitle := r.URL.Query().Get("role_title"); roleTitle != "" {
+			filter.RoleTitle = &roleTitle
+		}
+
+		if appliedAfterStr := r.URL.Query().Get("applied_after"); appliedAfterStr != "" {
+			t, err := time.Parse("2006-01-02", appliedAfterStr)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, "invalid applied_after date, expected YYYY-MM-DD")
+				return
+			}
+			filter.AppliedAfter = &t
+		}
+
+		if appliedBeforeStr := r.URL.Query().Get("applied_before"); appliedBeforeStr != "" {
+
+			// In Golang, we use a reference date (must be 2006-01-02 to get YYYY-MM-DD ) to get the format that we want. Interesting....
+			t, err := time.Parse("2006-01-02", appliedBeforeStr)
+			if err != nil {
+				writeError(w, http.StatusBadRequest, "invalid applied_before date, expected YYYY-MM-DD")
+				return
+			}
+			filter.AppliedBefore = &t
+		}
+
+		apps, err := jobtracedb.ListJobApplications(db, filter)
 		if err != nil {
 			writeError(w, http.StatusInternalServerError, "failed to list job applications")
 			log.Printf("list_job_applications_handler failed: %v", err)

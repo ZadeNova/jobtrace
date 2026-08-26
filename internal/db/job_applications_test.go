@@ -52,7 +52,7 @@ func TestListJobApplications(t *testing.T) {
 		testDB.Exec(`DELETE FROM job_applications WHERE id = $1`, app.ID)
 	})
 
-	apps, err := ListJobApplications(testDB)
+	apps, err := ListJobApplications(testDB, JobApplicationFilter{})
 	if err != nil {
 		t.Fatalf("ListJobApplications returned error: %v", err)
 	}

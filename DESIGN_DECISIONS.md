@@ -42,7 +42,7 @@ insert the same round. A `CHECK` only sees one row at a time so it can't catch t
 needed an index instead. Shows up as a Postgres unique-violation, which the handler
 maps to a `409` via `errors.As` on the pq error code (`23505`).
 
-There is a test function for this at application_events_test_go under handler folder.
+There is a test function for this at application_events_test.go under handler folder.
 
 ### `round_number` computed server-side
 
@@ -62,3 +62,15 @@ above covers the race the computation alone can't.
 **Why:** app-managed `updated_at` is the same sync bug already avoided for `status`
 elsewhere — one fact, two places, hoping every code path remembers to update both. A
 trigger just makes it impossible to forget, no matter what touches the row.
+
+### sqlc dropped, staying on raw `database/sql`
+
+Originally planned (see `CLAUDE.md`), decided against it once the DB-backed test suite
+existed.
+
+**Why:** the strongest argument for sqlc was catching SQL mistakes (wrong table/column
+names, like the real typos hit this session) at build time instead of runtime. The test
+suite now catches the same class of bug against a real database — one step later than
+sqlc would, but the gap that used to justify the migration effort mostly closed once
+tests existed. For a project this scale, not worth the migration on top of that. Also
+sidesteps fighting sqlc's static-query model once M2's search/filter needs land.
