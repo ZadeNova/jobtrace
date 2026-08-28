@@ -1,4 +1,38 @@
 services:
+  app:
+    build: .
+    container_name: jobtrace-app
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: 5432
+      POSTGRES_HOST: postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: jobtrace-prometheus
+    volumes:
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "jobtrace_prometheus_data:/prometheus"
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: jobtrace-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - "jobtrace_grafana_data:/var/lib/grafana"
+    depends_on:
+      - prometheus
+
   postgres:
     image: postgres:16
     container_name: jobtrace-postgres
@@ -19,3 +53,5 @@ services:
 
 volumes:
   jobtrace_pgdata:
+  jobtrace_prometheus_data:
+  jobtrace_grafana_data:

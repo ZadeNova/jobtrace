@@ -15,6 +15,7 @@ import (
 	"github.com/ZadeNova/jobtrace/internal/handler"
 	"github.com/ZadeNova/jobtrace/internal/middleware"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func healthzHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,8 +55,8 @@ func main() {
 	}
 
 	dsn := fmt.Sprintf(
-		"host=localhost port=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB,
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		cfg.PostgresHost, cfg.PostgresPort, cfg.PostgresUser, cfg.PostgresPassword, cfg.PostgresDB,
 	)
 
 	db, err := sql.Open("postgres", dsn)
@@ -72,6 +73,9 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", healthzHandler)
 	mux.HandleFunc("GET /readyz", readyzHandler(db))
+
+	// Prometheus
+	mux.Handle("GET /metrics", promhttp.Handler())
 
 	// CRUD handlers for Job Application
 	mux.HandleFunc("POST /job-applications", handler.CreateJobApplicationHandler(db))

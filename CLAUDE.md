@@ -31,9 +31,10 @@ a workaround silently.
   from the start (not deferred).
 - **M2**: Search/filter/aggregation. This is the designated scope-trim lever — if I'm behind
   schedule, cut here first, not M3.
-- **M3**: Full observability stack (OTel → Prometheus + Loki + Tempo → Grafana) + a lightweight
-  synthetic load generator for realistic dashboard traffic. This milestone is the project's
-  main differentiator — treat it as the highest-priority piece to get right.
+- **M3**: Full observability stack (OTel → Prometheus + Loki + Tempo → Grafana). This
+  milestone is the project's main differentiator — treat it as the highest-priority piece
+  to get right. The synthetic load generator originally scoped here is deferred until
+  after the frontend is built (see `Phase_3.MD`).
 
 ## Frontend
 

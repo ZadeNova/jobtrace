@@ -10,6 +10,7 @@ type Config struct {
 	PostgresPassword string
 	PostgresDB       string
 	PostgresPort     string
+	PostgresHost     string
 }
 
 func Load() (Config, error) {
@@ -18,9 +19,10 @@ func Load() (Config, error) {
 		PostgresPassword: os.Getenv("POSTGRES_PASSWORD"),
 		PostgresDB:       os.Getenv("POSTGRES_DB"),
 		PostgresPort:     os.Getenv("POSTGRES_PORT"),
+		PostgresHost:     os.Getenv("POSTGRES_HOST"),
 	}
 
-	if cfg.PostgresUser == "" || cfg.PostgresPassword == "" || cfg.PostgresDB == "" || cfg.PostgresPort == "" {
+	if cfg.PostgresUser == "" || cfg.PostgresPassword == "" || cfg.PostgresDB == "" || cfg.PostgresPort == "" || cfg.PostgresHost == "" {
 		return Config{}, fmt.Errorf("missing required postgres env vars")
 	}
 
