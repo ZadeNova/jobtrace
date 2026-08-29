@@ -33,6 +33,25 @@ services:
     depends_on:
       - prometheus
 
+  loki:
+    image: grafana/loki:latest
+    container_name: jobtrace-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - "jobtrace_loki_data:/loki"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: jobtrace-promtail
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./promtail-config.yml:/etc/promtail/config.yml"
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
   postgres:
     image: postgres:16
     container_name: jobtrace-postgres
@@ -55,3 +74,4 @@ volumes:
   jobtrace_pgdata:
   jobtrace_prometheus_data:
   jobtrace_grafana_data:
+  jobtrace_loki_data:
