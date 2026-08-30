@@ -13,8 +13,9 @@ not feature breadth.
 - PostgreSQL via `database/sql` — no ORM/query builder. sqlc was considered during M1
   and deliberately dropped once a DB-backed test suite existed (see `DESIGN_DECISIONS.md`)
 - Docker Compose for local deployment through all milestones
-- Observability: OpenTelemetry (instrumentation) → Prometheus (metrics) + Loki (logs) +
-  Grafana Tempo (traces) → Grafana (visualization/correlation)
+- Observability: OpenTelemetry (instrumentation) → Prometheus (metrics) + Loki (logs,
+  shipped via Grafana Alloy — Promtail is EOL) + Grafana Tempo (traces) → Grafana
+  (visualization/correlation)
 
 ## Explicitly out of scope
 

@@ -10,8 +10,12 @@ later step.
    dashboard. Paired together as one checkpoint since Prometheus alone has no real UI
    worth using; Grafana is what makes the metrics useful.
 
-2. **Loki** — ship the existing structured (`slog`) logs to it, add as a second Grafana
-   datasource. No changes needed to steps already done.
+2. **Loki** — ship the app's `slog` logs to it via **Grafana Alloy** (the log-shipping
+   agent; originally planned as Promtail, swapped out after Promtail's EOL). Switch the
+   app's log output to JSON so Alloy can parse fields into Loki labels, then add Loki as
+   a second Grafana datasource. `request_id` is the queryable correlation label for now;
+   `trace_id`/`span_id` correlation is deferred to checkpoint 3, once real spans exist.
+   No changes needed to checkpoint 1's Prometheus/Grafana pieces.
 
 3. **OTel + Tempo** — instrument the app with spans, stand up Tempo, add as a third
    Grafana datasource. Paired together since neither produces anything visible alone —
